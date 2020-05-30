@@ -1,0 +1,31 @@
+﻿@namespace Tres.Products.Components
+@using Tres.Products.Models
+
+<div class="card">
+    <div class="card-header">
+        @Product.Name
+        <small class="float-sm-right">
+            <ActionLink Action="Edit" Parameters="@($"id=" + @Product.ProductId.ToString())" />
+            <ActionDialog Header="Delete Product" IconName="trash" Message="@("Are You Sure You Wish To Delete The " + @Product.Name + " Product?")"
+                Action="Delete" Security="SecurityAccessLevel.Edit" Class="btn btn-danger"
+                OnClick="@(async () => await OnClick.InvokeAsync(@Product))" />
+
+        </small>
+    </div>
+    <div class="card-body">
+        <h5 class="card-title">@Product.Description</h5>
+        <p class="card-text">@Product.DetailDescription</p>
+        <a href="@Product.Url" class="btn btn-primary">View Catalog</a>
+    </div>
+    <div class="card-footer text-muted">
+        2 days ago
+    </div>
+</div>
+
+@code {
+
+    [Parameter]
+    public Product Product { get; set; }
+
+    [Parameter] public EventCallback<Product> OnClick { get; set; }
+}

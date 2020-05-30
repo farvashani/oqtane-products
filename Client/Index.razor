@@ -1,0 +1,124 @@
+@namespace Tres.Products
+
+@using Tres.Products.Services
+@using Tres.Products.Models
+
+@inherits ModuleBase
+@inject NavigationManager NavigationManager
+@inject IProductService ProductService
+
+@if (_Products == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <ActionLink Action="Add" Security="SecurityAccessLevel.Edit" Text="Add Product" />
+    <br />
+    <br />
+
+    if (_Products.Count() > 0)
+    {
+
+        //Try to determine the count and appply the correct column spacing.
+
+        if (_Products.Count() <= @itemsPerRow)
+        {
+
+            <div class="container">
+                <div class="row">
+
+                    @foreach (var prod in _Products)
+                    {
+                        <div class="col">
+                            <Tres.Products.Components.ProductComponent Product="@prod" OnClick="Delete"></Tres.Products.Components.ProductComponent>
+                        </div>
+                    }
+
+                </div>
+            </div>
+
+        }
+        else
+        {
+            <div class="container">
+
+                @for (int i = 0; i < @loopsToPreform; i++)
+                {
+                    <div class="row">
+
+                        @foreach (var prod in _Products.Skip(@i * @itemsPerRow).Take(@itemsPerRow))
+                        {
+                            <div class="col">
+                                <Tres.Products.Components.ProductComponent Product="@prod" OnClick="Delete"></Tres.Products.Components.ProductComponent>
+
+                            </div>
+                        }
+
+
+                    </div>
+
+                }
+
+            </div>
+
+        }
+    }
+    else
+    {
+        <h3>No Records Found</h3>
+    }
+}
+
+@code {
+    List<Product> _Products;
+
+    int itemsPerRow = 3;
+    int loopsToPreform = 0;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        try
+        {
+            _Products = await ProductService.GetProductsAsync(ModuleState.ModuleId);
+
+            CalcualteLoops(_Products.Count());
+
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Loading Product {Error}", ex.Message);
+            AddModuleMessage("Error Loading Product", MessageType.Error);
+        }
+    }
+
+    private async Task Delete(Product Product)
+    {
+        try
+        {
+            await ProductService.DeleteProductAsync(Product.ProductId);
+            await logger.LogInformation("Product Deleted {Product}", Product);
+            NavigationManager.NavigateTo(NavigateUrl());
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Deleting Product {Product} {Error}", Product, ex.Message);
+            AddModuleMessage("Error Deleting Product", MessageType.Error);
+        }
+    }
+
+    private void CalcualteLoops(int itemCount)
+    {
+        var remainder = (itemCount % itemsPerRow);
+
+        if (remainder == 0)
+        {
+            loopsToPreform = (itemCount / itemsPerRow);
+        }
+        else
+        {
+            loopsToPreform = (itemCount / itemsPerRow) + 1;
+        }
+
+    }
+}

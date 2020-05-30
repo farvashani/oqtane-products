@@ -1,0 +1,130 @@
+@namespace Tres.Products
+
+@using Tres.Products.Services
+@using Tres.Products.Models
+
+
+@inherits ModuleBase
+@inject NavigationManager NavigationManager
+@inject IProductService ProductService
+
+<table class="table table-borderless">
+    <tr>
+        <td>
+            <label class="control-label">Name: </label>
+        </td>
+        <td>
+            <input id="_name" class="form-control" @bind="@_name" />
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <label class="control-label">Description: </label>
+        </td>
+        <td>
+            <input id="_description" class="form-control" @bind="@_description" />
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <label class="control-label">Detail Description: </label>
+        </td>
+        <td>
+            <input id="_detaildescription" class="form-control" @bind="@_detaildescription" />
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <label class="control-label">Url: </label>
+        </td>
+        <td>
+            <input id="_url" class="form-control" @bind="@_url" />
+        </td>
+    </tr>
+</table>
+<button type="button" class="btn btn-success" @onclick="Save">Save</button>
+<NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
+<br />
+<br />
+@if (PageState.Action == "Edit")
+{
+    <AuditInfo CreatedBy="@_createdby" CreatedOn="@_createdon" ModifiedBy="@_modifiedby" ModifiedOn="@_modifiedon"></AuditInfo>
+}
+
+@code {
+
+    public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Edit; } }
+    public override string Actions { get { return "Add,Edit"; } }
+
+    int _id;
+    string _name;
+    string _description;
+    string _detaildescription;
+    string _url;
+    string _createdby;
+    DateTime _createdon;
+    string _modifiedby;
+    DateTime _modifiedon;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (PageState.Action == "Edit")
+        {
+            try
+            {
+                _id = Int32.Parse(PageState.QueryString["id"]);
+                Product Product = await ProductService.GetProductAsync(_id);
+                if (Product != null)
+                {
+                    _name = Product.Name;
+                    _description = Product.Description;
+                    _detaildescription = Product.DetailDescription;
+                    _url = Product.Url;
+                    _createdby = Product.CreatedBy;
+                    _createdon = Product.CreatedOn;
+                    _modifiedby = Product.ModifiedBy;
+                    _modifiedon = Product.ModifiedOn;
+                }
+            }
+            catch (Exception ex)
+            {
+                await logger.LogError(ex, "Error Loading Product {ProductId} {Error}", _id, ex.Message);
+                AddModuleMessage("Error Loading Product", MessageType.Error);
+            }
+        }
+    }
+
+    private async Task Save()
+    {
+        try
+        {
+            if (PageState.Action == "Add")
+            {
+                Product Product = new Product();
+                Product.ModuleId = ModuleState.ModuleId;
+                Product.Name = _name;
+                Product.Description = _description;
+                Product.DetailDescription = _detaildescription;
+                Product.Url = _url;
+                Product = await ProductService.AddProductAsync(Product);
+                await logger.LogInformation("Product Added {Product}", Product);
+            }
+            else
+            {
+                Product Product = await ProductService.GetProductAsync(_id);
+                Product.Name = _name;
+                Product.Description = _description;
+                Product.DetailDescription = _detaildescription;
+                Product.Url = _url;
+                await ProductService.UpdateProductAsync(Product);
+                await logger.LogInformation("Product Updated {Product}", Product);
+            }
+            NavigationManager.NavigateTo(NavigateUrl());
+        }
+        catch (Exception ex)
+        {
+            await logger.LogError(ex, "Error Saving Product {Error}", ex.Message);
+            AddModuleMessage("Error Saving Product", MessageType.Error);
+        }
+    }
+}
