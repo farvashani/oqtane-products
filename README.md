@@ -14,7 +14,7 @@ Simple product module.
 
 Any pull requests are welcome!
 
-![Screenshot](https://raw.githubusercontent.com/mikecasas/oqtane-products/master/images/profuct.PNG "Screenshot 1")
+![Screenshot](https://raw.githubusercontent.com/mikecasas/oqtane-products/master/images/product.PNG "Screenshot 1")
 
 ## Questions
 Feel free to open a new issue if you have any questions.
