@@ -8,40 +8,51 @@
 @inject NavigationManager NavigationManager
 @inject IProductService ProductService
 
-<table class="table table-borderless">
-    <tr>
-        <td>
-            <label class="control-label">Name: </label>
-        </td>
-        <td>
-            <input id="_name" class="form-control" @bind="@_name" />
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <label class="control-label">Description: </label>
-        </td>
-        <td>
-            <input id="_description" class="form-control" @bind="@_description" />
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <label class="control-label">Detail Description: </label>
-        </td>
-        <td>
-            <input id="_detaildescription" class="form-control" @bind="@_detaildescription" />
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <label class="control-label">Url: </label>
-        </td>
-        <td>
-            <input id="_url" class="form-control" @bind="@_url" />
-        </td>
-    </tr>
-</table>
+    <table class="table table-borderless">
+        <tr>
+            <td>
+                <label class="control-label">Name: </label>
+            </td>
+            <td>
+                <input id="_name" class="form-control" @bind="@_name" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label class="control-label">Description: </label>
+            </td>
+            <td>
+                <input id="_description" class="form-control" @bind="@_description" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label class="control-label">Detail Description: </label>
+            </td>
+            <td>
+                <input id="_detaildescription" class="form-control" @bind="@_detaildescription" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label class="control-label">Url: </label>
+            </td>
+            <td>
+                <input id="_url" class="form-control" @bind="@_url" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <Label For="logo" HelpText="Upload an image for the slide">Image: </Label>
+            </td>
+            <td>
+                <FileManager FileId="@_source" Filter="@Constants.ImageFiles" @ref="_imageManager" />
+            </td>
+        </tr>
+
+
+
+    </table>
 <button type="button" class="btn btn-success" @onclick="Save">Save</button>
 <NavLink class="btn btn-secondary" href="@NavigateUrl()">Cancel</NavLink>
 <br />
@@ -55,6 +66,9 @@
 
     public override SecurityAccessLevel SecurityAccessLevel { get { return SecurityAccessLevel.Edit; } }
     public override string Actions { get { return "Add,Edit"; } }
+
+    int _source = -1;
+    private FileManager _imageManager;
 
     int _id;
     string _name;
@@ -100,12 +114,17 @@
         {
             if (PageState.Action == "Add")
             {
+
+                _source = _imageManager.GetFileId();
+
                 Product Product = new Product();
                 Product.ModuleId = ModuleState.ModuleId;
                 Product.Name = _name;
                 Product.Description = _description;
                 Product.DetailDescription = _detaildescription;
                 Product.Url = _url;
+                Product.Source = _source;
+
                 Product = await ProductService.AddProductAsync(Product);
                 await logger.LogInformation("Product Added {Product}", Product);
             }

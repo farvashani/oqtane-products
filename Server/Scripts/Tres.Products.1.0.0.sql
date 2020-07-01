@@ -9,6 +9,10 @@ CREATE TABLE [dbo].[TresProduct](
 	[Description] [nvarchar](256) NOT NULL,
 	[DetailDescription] [nvarchar](256) NOT NULL,
 	[Url] [nvarchar](256) NOT NULL,
+
+	[Source] [int] NOT NULL,
+
+
 	[CreatedBy] [nvarchar](256) NOT NULL,
 	[CreatedOn] [datetime] NOT NULL,
 	[ModifiedBy] [nvarchar](256) NOT NULL,

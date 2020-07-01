@@ -1,26 +1,43 @@
 ﻿@namespace Tres.Products.Components
 @using Tres.Products.Models
 
-<div class="card">
-    <div class="card-header">
-        @Product.Name
-        <small class="float-sm-right">
-            <ActionLink Action="Edit" Parameters="@($"id=" + @Product.ProductId.ToString())" />
-            <ActionDialog Header="Delete Product" IconName="trash" Message="@("Are You Sure You Wish To Delete The " + @Product.Name + " Product?")"
-                Action="Delete" Security="SecurityAccessLevel.Edit" Class="btn btn-danger"
-                OnClick="@(async () => await OnClick.InvokeAsync(@Product))" />
+@inherits ModuleBase
 
-        </small>
+
+
+<div class="card" style="width: 22rem;">
+    <img src="@ContentUrl(Product.Source)" class="card-img-top" alt="Image">
+    <div class="card-header">
+        <h2 class="card-title">@Product.Name</h2>
     </div>
+
     <div class="card-body">
         <h5 class="card-title">@Product.Description</h5>
         <p class="card-text">@Product.DetailDescription</p>
-        <a href="@Product.Url" class="btn btn-primary">View Catalog</a>
+        <a href="@Product.Url" class="btn btn-primary">Reserve</a>
     </div>
     <div class="card-footer text-muted">
         2 days ago
     </div>
 </div>
+
+@if (PageState.EditMode == true)
+{
+    <div class="card">
+        <div class="card-header">
+            <small class="float-sm-right">
+                <ActionLink Action="Edit" Parameters="@($"id=" + @Product.ProductId.ToString())" />
+                <ActionDialog Header="Delete Product" IconName="trash" Message="@("Are You Sure You Wish To Delete The " + @Product.Name + " Product?")"
+                              Action="Delete" Security="SecurityAccessLevel.Edit" Class="btn btn-danger"
+                              OnClick="@(async () => await OnClick.InvokeAsync(@Product))" />
+            </small>
+        </div>
+
+    </div>
+}
+
+
+
 
 @code {
 
